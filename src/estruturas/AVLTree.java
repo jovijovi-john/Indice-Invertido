@@ -1,8 +1,8 @@
 package estruturas;
-import items.Item;
+import items.Dicionario;
 
 
-public class AVLTree<Key extends Comparable<Key>, Value> implements Item<Key, Value>{
+public class AVLTree<Key extends Comparable<Key>, Value> implements Dicionario<Key, Value>{
 
     private class Node {
         Key chave;
@@ -292,7 +292,9 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements Item<Key, Va
     // Caminha pela subárvore em pré-ordem, imprimindo o elemento do nó
     private void view(Node no) {
         if(no == null) return;
+        System.out.print(no.chave + " ");
         System.out.println(no.valor.toString());
+
         view(no.esq);
         view(no.dir);
     }

@@ -1,7 +1,7 @@
 package estruturas;
-import items.Item;
+import items.Dicionario;
 
-public class RBTree<Key extends Comparable<Key>, Value> implements Item<Key, Value>{
+public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Key, Value> {
 
     protected static final boolean RED = true;
     protected static final boolean BLACK = false;

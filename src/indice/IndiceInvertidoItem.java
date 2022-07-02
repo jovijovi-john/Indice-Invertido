@@ -6,9 +6,10 @@ public class IndiceInvertidoItem {
     private String termo;
     private ArrayList<Par> pares;
 
-    public IndiceInvertidoItem(String termo, ArrayList<Par> pares) {
+    public IndiceInvertidoItem(String termo, Par par) {
         this.termo = termo;
-        this.pares = pares;
+        this.pares = new ArrayList<>();
+        pares.add(par);
     }
 
     public String getTermo() {
@@ -26,4 +27,5 @@ public class IndiceInvertidoItem {
     public void setPares(ArrayList<Par> pares) {
         this.pares = pares;
     }
+
 }
