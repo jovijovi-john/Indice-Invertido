@@ -7,108 +7,118 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
     protected static final boolean BLACK = false;
 
     protected class Node {
-        public Key key;
-        public Value value;
+        public Key chave;
+        public Value valor;
         public Node pai, esq, dir;
 
         boolean cor;
-        int size;
+        int tam;
 
-        Node(Key key, Value value, int size, boolean color, Node pai) {
-            this.key = key;
-            this.value = value;
+        Node(Key chave, Value valor, int tam, boolean cor, Node pai) {
+            this.chave = chave;
+            this.valor = valor;
 
-            this.size = size;
-            this.cor = color;
+            this.tam = tam;
+            this.cor = cor;
             this.pai = pai;
         }
 
     }
 
     protected Node raiz;
-    // Para a verificação das propriedades da árvore
+    // Realizar a verificação das propriedades da árvore Rubro negra
     protected Node interestNode;
     protected boolean interestColor;
 
-    // Retorna o iterador da árvore
+    // Iterador da árvore
     public Iterator Iterator() {
         return new Iterator();
     }
 
-    // Classe interna que fornece acesso a um iterador da árvore
+    // Acesso ao iterador da arvore
     public class Iterator {
-        private Node[] nodes;
+        private Node[] nos;
         private int cur = 0;
         @SuppressWarnings("unchecked")
         private Iterator() {
-            int numNodes = contaPretos(raiz) + contaVermelhos(raiz);
-            this.nodes = new RBTree.Node[numNodes];
+            int numNodes = qtdPretos(raiz) + qtdVermelhos(raiz);
+            this.nos = new RBTree.Node[numNodes];
             toArray(raiz);
             this.cur = -1;
         }
         // Transforma a árvore num array para operar os nós em sequência
-        // Árvore disposta em pré-ordem
         private void toArray(Node root) {
             if(root == null) return;
-            nodes[cur++] = root;
+            nos[cur++] = root;
             toArray(root.esq);
             toArray(root.dir);
         }
-        // Retorna o item do próximo nó da árvore
+        // Retorna o elemento do proximo no
         public Object[] next() {
-            if(!hasNext()) {
+            if(!proximo()) {
                 cur = -2;
                 return null;
             }
             cur++;
-            Object[] temp = new Object[2];
-            temp[0] = nodes[cur].key;
-            temp[1] = nodes[cur].value;
-            return temp;
+            Object[] temporario = new Object[2];
+            temporario[0] = nos[cur].chave;
+            temporario[1] = nos[cur].valor;
+            return temporario;
         }
-        // Indica se o iterador chegou no fim da árvore
-        public boolean hasNext() {
-            if(cur == nodes.length - 1 || cur == -2) return false;
-            return true;
+        // Indica se há um próximo elemento ou se está no fim da árvore
+        public boolean proximo() {
+            if(cur == nos.length - 1 || cur == -2){
+                return false;
+            } else {
+                return true;
+            }
         }
-        // Reseta o iterador
+        // zera o iterador
         public void reset() {
             cur = -1;
         }
     }
 
-    // Verifica se o nó é vermelho
-    private boolean isRed(Node h) {
-        if(h == null) return false;
-        return RED && h.cor; // Se o nó for preto, retorna false
+    // Verifica a cor do nó
+    private boolean ehVermelho(Node n) {
+        if(n == null){
+            return false;
+        } else {
+            // Se o nó for preto, retorna o valor false
+            return RED && n.cor;
+        }
     }
 
-    // Verifica se o nó é preto
-    private boolean isBlack(Node h) {
-        if(h == null) return true;
-        return !(BLACK || h.cor); // Se o nó for vermelho, retorna !true
+    private boolean ehPreto(Node n) {
+        if(n == null) {
+            return true;
+        } else{
+            // Se o nó for vermelho, retorna o valor false
+            return !(BLACK || n.cor);
+        }
+
     }
 
-    // Retorna quantos nós tem na árvore
-    public int size() {
-        return size(raiz);
+    // Quantidade de nós na árvore
+    public int tam() {
+        return tam(raiz);
     }
 
     // Retorna quantos nós tem na subárvore
-    protected int size(Node no) {
+    protected int tam(Node no) {
         if (no == null) {
             return 0;
         }
 
-        return no.size;
+        return no.tam;
     }
 
-    // Verifica se a árvore está vazia
+    // Verifica se há elementos na árvore
     public boolean isEmpty() {
-        return size(raiz) == 0;
+        return tam(raiz) == 0;
     }
 
-    // Rotaciona o nó à esquerda
+    // Realiza rotação à esqueda
     protected Node rotacaoEsquerda(Node no) {
         if (no == null || no.dir == null) {
             return no;
@@ -117,22 +127,21 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
         // A direita do nó sobe
         Node novaRaiz = no.dir;
 
-        // A esquerda do nó que sobe passa para o que desce
+        // o nó que desce recebe a direita do nó que sobe
         no.dir = novaRaiz.esq;
-        if(novaRaiz.esq != null)
+        if(novaRaiz.esq != null) {
             novaRaiz.esq.pai = no;
-        // O nó desce
+        }
         novaRaiz.esq = no;
-
         novaRaiz.pai = no.pai;
         no.pai = novaRaiz;
-
-        novaRaiz.size = size(novaRaiz.esq) + 1 + size(novaRaiz.dir);
-        no.size = size(no.esq) + 1 + size(no.dir);
+        novaRaiz.tam = tam(novaRaiz.esq) + 1 + tam(novaRaiz.dir);
+        no.tam = tam(no.esq) + 1 + tam(no.dir);
 
         return novaRaiz;
     }
 
+    //Realiza rotação à direita
     private Node rotacaoDireita(Node no) {
         if (no == null || no.esq == null) {
             return no;
@@ -141,60 +150,57 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
         // A esquerda do nó sobe
         Node novaRaiz = no.esq;
 
-        // A direita do nó que sobe passa para o que desce
+        // o nó que sobe recebe a direita do nó que desce
         no.esq = novaRaiz.dir;
-        if(novaRaiz.dir != null)
+        if(novaRaiz.dir != null) {
             novaRaiz.dir.pai = no;
-        // O nó desce
-        novaRaiz.dir = no;
+        }
 
+        novaRaiz.dir = no;
         novaRaiz.pai = no.pai;
         no.pai = novaRaiz;
-
-        novaRaiz.size = size(novaRaiz.esq) + 1 + size(novaRaiz.dir);
-        no.size = size(no.esq) + 1 + size(no.dir);
+        novaRaiz.tam = tam(novaRaiz.esq) + 1 + tam(novaRaiz.dir);
+        no.tam = tam(no.esq) + 1 + tam(no.dir);
 
         return novaRaiz;
     }
 
-    // Troca a cor do nó
-    // A nova cor do nó é o oposto do valor atual
-    private void trocaCor(Node h) {
-        if(h == null)
+    //Muda a cor do nó
+    private void trocaCor(Node n) {
+        if(n == null)
             return;
-        h.cor = !h.cor;
+        n.cor = !n.cor;
     }
 
 
     // Insere um elemento na árvore
     public void put(Key key, Value val) {
         interestNode = null;
-        // Elemento é inserido normalmente
         raiz = put(raiz, key, val, null);
-        // Se há um novo nó, devem ser verificadas as propriedades da árvore
+//Verificar as propriedades da árvore, caso necessário
         if(interestNode != null)
             insertFixUp(interestNode);
     }
 
-    // Insere um elemento na árvore a partir de um nó
-    private Node put(Node h, Key key, Value val, Node pai)
+    // Adiciona um elemento na árvore
+    private Node put(Node n, Key chave, Value valor, Node pai)
     {
-        // O nó encontrou seu lugar e é o nó de interesse
-        if (h == null) {
-            interestNode = new Node(key, val, 1, RED, pai);
+
+        if (n == null) {
+            interestNode = new Node(chave, valor, 1, RED, pai);
             return interestNode;
         }
 
-        int cmp = key.compareTo(h.key);
+        int cmp = chave.compareTo(n.chave);
         // Busca binária pela posição do nó
         if (cmp < 0)
-            h.esq = put(h.esq, key, val, h);
+            n.esq = put(n.esq, chave, valor, n);
         else if (cmp > 0)
-            h.dir = put(h.dir, key, val, h);
-        else h.value = val;// Nó já existente atualiza seu valor
+            n.dir = put(n.dir, chave, valor, n);
+        else n.valor = valor;
 
-        h.size = size(h.esq) + size(h.dir) + 1;
-        return h;
+        n.tam = tam(n.esq) + tam(n.dir) + 1;
+        return n;
     }
 
     // Verifica e repara as propriedades da árvore
@@ -202,34 +208,33 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
 
         Node avo, pai, tio;
 
-        // Enquanto houver dois vermelhos seguidos
-        while(isRed(no.pai)) {
+        //Se tiver dois nós vermelhos seguidos
+        while(ehVermelho(no.pai)) {
 
             pai = no.pai;
             avo = no.pai.pai;
-            // O pai sendo a esquerda do avô
+            // pai == filho esquerdo do avô
             if(pai == avo.esq) {
                 tio = avo.dir;
-                // Tio vermelho, recolore avô, tio e pai
-                if(isRed(tio)) {
+                //Se o tio for vermelho
+                if(ehVermelho(tio)) {
                     trocaCor(avo);
                     trocaCor(pai);
                     trocaCor(tio);
-                    no = avo; // Verifica as propriedades no avô
-                } else { // Tio preto, necessárias rotações
-                    // Nó está à direita do pai, é necessário dupla rotação à direita no avô
-                    // Então rotaciona o pai à esquerda
+                    no = avo; //
+                } else {
+                    // Nó está à direita do pai == dupla rotação à direita no avô
+                    // Rotacionar o pai à esquerda
                     if(no == pai.dir) {
                         if(pai.pai != null)
                             pai.pai.esq = rotacaoEsquerda(pai);
                         else
                             raiz = rotacaoEsquerda(pai);
                     }
-                    // E recolore-se pai e avô
                     trocaCor(pai); //pai.cor = BLACK;
                     trocaCor(avo); //avo.cor = RED;
 
-                    // Rotaciona o avô à direita
+                    // Rotacionar o avô à direita
                     if(avo.pai == null) {
                         raiz = rotacaoDireita(avo);
                     } else {
@@ -239,28 +244,26 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
                             avo.pai.esq = rotacaoDireita(avo);
                     }
                 }
-            } else { // O pai estando à direita do avô
+            } else { // O pai é filho esquerdo do avô
                 tio = avo.esq;
-                // Tio vermelho, recolore pai, tio e avô
-                if(isRed(tio)) {
+
+                if(ehVermelho(tio)) {
                     trocaCor(avo);
                     trocaCor(pai);
                     trocaCor(tio);
-                    no = avo; // Verifica as propriedades no avô
-                } else { // Tio preto, são necessárias rotações
-                    // O nó está à esquerda do pai, é necessária dupla rotação à esquerda no avô
-                    // Então rotaciona o pai à direita
+                    no = avo;
+                } else { //
+                    // O nó está à esquerda do pai ==necessária dupla rotação à esquerda no avô
                     if(no == pai.esq) {
                         if(pai.pai != null)
                             pai.pai.dir = rotacaoDireita(pai);
                         else
                             raiz = rotacaoDireita(pai);
                     }
-                    // Recolore pai e avô
                     trocaCor(pai); //pai.cor = BLACK;
                     trocaCor(avo); //avo.cor = RED;
 
-                    // Rotaciona o avô à esquerda
+                    // Rotacionar o avô à esquerda
                     if(avo.pai == null) {
                         raiz = rotacaoEsquerda(avo);
                     } else {
@@ -273,50 +276,49 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
             }
 
         }
-        // Garante que a raiz seja preta
+        // Protege a propriedade de que a raiz deve ser preta
         raiz.cor = BLACK;
 
     }
 
-    // Deleta um elemento da árvore
+    // apaga um elemento na árvore
     public void delete(Key chave) {
 
         if (chave == null) {
             return;
         }
         interestNode = null;
-        // Deleta normalmente o elemento
+
         raiz = delete(raiz, chave);
-        // Se o nó deletado era preto, verificam-se as propriedades da árvore
+        // Verificar as propriedades da tabela
         if(interestNode != null && interestColor == BLACK)
             deleteFixUp(interestNode);
 
     }
 
     // Deleta um elemento a partir de um nó
-    private Node delete(Node no, Key chave) {
+    private Node delete(Node no, Key key) {
 
         if (no == null) {
             return null;
         }
 
-        int compare = chave.compareTo(no.key);
+        int compare = key.compareTo(no.chave);
         // Busca binária pelo nó
         if (compare < 0) {
-            no.esq = delete(no.esq, chave);
+            no.esq = delete(no.esq, key);
         } else if (compare > 0) {
-            no.dir = delete(no.dir, chave);
+            no.dir = delete(no.dir, key);
         } else {
-            // Se o nó tem filho esquerdo e direito, deve ser substituído pelo menor de sua direita
-            // O substituto passa a ser o nó de interesse
+            // Verifica se o nó tem filho esquerdo e direito
             if(no.esq != null && no.dir != null) {
                 Node temp = min(no.dir);
-                no.key = temp.key;
-                no.value = temp.value;
-                no.dir = delete(no.dir, temp.key);
+                no.chave = temp.chave;
+                no.valor = temp.valor;
+                no.dir = delete(no.dir, temp.chave);
             }
-            // Se tiver apenas filho direito ou esquerdo ou nenhum, o nó é substituído por seu filho
-            // Aqui o nó e cor de interesse são definidos
+            // Verificando propriedades
+
             else if(no.esq != null) {
                 interestColor = no.cor;
                 interestNode = no.esq;
@@ -331,38 +333,38 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
             }
         }
 
-        no.size = size(no.esq) + 1 + size(no.dir);
+        no.tam = tam(no.esq) + 1 + tam(no.dir);
 
         return no;
     }
 
-    // Encontra o menor nó da árvore
-    // O menor nó é o primeiro que não possuir esquerda
+    // Retorna o menor nó da árvore
     private Node min(Node no) {
         if(no == null) return null;
         if(no.esq != null) return min(no.esq);
         return no;
     }
 
-    // Verifica e repara as propriedades da árvore
+    // Verifica as propriedades da árvore
     private void deleteFixUp(Node no) {
 
         Node irmao;
 
-        while(no != raiz && isRed(no)) {
+        while(no != raiz && ehVermelho(no)) {
 
             if(no == no.pai.esq) {
                 irmao = no.pai.dir;
-                if(isRed(irmao)) {
+                if(ehVermelho(irmao)) {
                     trocaCor(irmao);
                     no.pai.cor = RED;
                     no.pai.pai.esq = rotacaoEsquerda(no.pai);
                     irmao = no.pai.dir;
                 }
-                if(isBlack(irmao.esq) && isBlack(irmao.dir)) {
+                //verifica se os irmãos são pretos
+                if(ehPreto(irmao.esq) && ehPreto(irmao.dir)) {
                     irmao.cor = RED;
                     no = no.pai;
-                } else if(isBlack(irmao.dir)) {
+                } else if(ehPreto(irmao.dir)) {
                     irmao.esq.cor = BLACK;
                     irmao.cor = RED;
                     irmao.pai.dir = rotacaoDireita(irmao);
@@ -375,16 +377,16 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
                 no = raiz;
             } else {
                 irmao = no.pai.esq;
-                if(isRed(irmao)) {
+                if(ehVermelho(irmao)) {
                     trocaCor(irmao);
                     no.pai.cor = RED;
                     no.pai.pai.dir = rotacaoDireita(no.pai);
                     irmao = no.pai.esq;
                 }
-                if(isBlack(irmao.esq) && isBlack(irmao.dir)) {
+                if(ehPreto(irmao.esq) && ehPreto(irmao.dir)) {
                     irmao.cor = RED;
                     no = no.pai;
-                } else if(isBlack(irmao.esq)) {
+                } else if(ehPreto(irmao.esq)) {
                     irmao.dir.cor = BLACK;
                     irmao.cor = RED;
                     irmao.pai.esq = rotacaoEsquerda(irmao);
@@ -403,40 +405,44 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
 
     }
 
-    // Retorna o percentual de nós vermelhos na árvore usando contaVermelhos e contaPretos
+    // Informa a qtd de nós vermelhos na árvore
     public double percentVermelhos() {
         double r, v, p;
 
-        v = contaVermelhos(raiz);
-        p = contaPretos(raiz);
+        v = qtdVermelhos(raiz);
+        p = qtdPretos(raiz);
         r = v/(v + p);
         return r;
     }
 
     // Retorna quantos nós vermelhos há na árvore
-    private int contaVermelhos(Node no) {
+    private int qtdVermelhos(Node no) {
 
         int cont = 0;
         if(no == null) return cont;
 
-        cont += contaVermelhos(no.esq);
-        cont += contaVermelhos(no.dir);
-        if(isRed(no))
+        cont +=  qtdVermelhos(no.esq);
+        cont +=  qtdVermelhos(no.dir);
+        if(ehVermelho(no)) {
             cont++;
+        }
 
         return cont;
     }
 
     // Retorna quantos nós pretos há na árvore
-    private int contaPretos(Node no) {
+    private int qtdPretos(Node no) {
 
         int cont = 0;
-        if(no == null) return cont;
+        if(no == null) {
+            return cont;
+        }
 
-        cont += contaPretos(no.esq);
-        cont += contaPretos(no.dir);
-        if(isBlack(no))
+        cont += qtdPretos(no.esq);
+        cont += qtdPretos(no.dir);
+        if(ehPreto(no)) {
             cont++;
+        }
 
         return cont;
     }
@@ -450,35 +456,37 @@ public class RBTree<Key extends Comparable<Key>, Value> implements Dicionario<Ke
         return get(raiz, chave);
     }
 
-    // Busca um elemento na árvore a partir de um nó
+    // Mostra a árvore
+    public void view() {
+        view(raiz);
+    }
+
+
+    // percorre na árvore e eibe os elementos
+    private void view(Node no) {
+        if(no == null) return;
+        System.out.println(no.valor.toString());
+        view(no.esq);
+        view(no.dir);
+    }
+
+    // Busca um elemento na árvore
     private Value get(Node no, Key chave) {
-        // Chegou na folha e não achou o nó, ele é inexistente
         if (no == null) {
             return null;
         }
 
         // Busca binária pelo elemento
-        int compare = chave.compareTo(no.key);
+        int compare = chave.compareTo(no.chave);
         if (compare < 0) {
             return get(no.esq, chave);
         } else if (compare > 0) {
             return get(no.dir, chave);
         } else {
-            return no.value;
+            return no.valor;
         }
     }
 
-    // Exibe a árvore
-    public void view() {
-        view(raiz);
-    }
 
-    // Caminha na árvore em pré-ordem e imprime cada elemento
-    private void view(Node no) {
-        if(no == null) return;
-        System.out.println(no.value.toString());
-        view(no.esq);
-        view(no.dir);
-    }
 
 }

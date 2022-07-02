@@ -5,80 +5,91 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class ListaEncadeada<Key, Value> {
-    private int n; // Quantidade de pares(valor-chave)
-    private Node primeiro; // Primeiro nó da lista
+    // Quantidade de pares na tabela
+    private int qtdPares;
+    // Pega o Primeiro nó da lista
+    private Node nodeFirst;
 
-    //Estrutura de um nó da lista encadeada.
+    //nó na lista encadeada.
     private class Node{
         private Key key;
         private Value value;
-        private Node prox;
+        private Node next;
 
-        public Node(Key key, Value val, Node prox){
+        public Node(Key key, Value val, Node next){
             this.key = key;
             this.value = val;
-            this.prox = prox;
+            this.next = next;
         }
     }
 
+
+
     public ListaEncadeada(){}
 
+    //Pegar a qtd de pares na lista
     public int getSize(){
-        return n;
+        return qtdPares;
     }
 
     public Boolean isEmpty(){
         return getSize() == 0;
     }
 
+
+
     public boolean contains(Key key){
         return get(key) != null;
     }
 
+    //Pegar um elemento da lista
     public Value get(Key key){
-        for(Node i = primeiro; i != null; i = i.prox){
-            if(key.equals(i.key))
-                return i.value;
+        for(Node n = nodeFirst; n != null; n = n.next){
+            if(key.equals(n.key))
+                return n.value;
         }
         return null;
     }
 
-    public void put(Key key, Value val){
-        if (val == null){
+    public void put(Key key, Value valor){
+        if (valor == null){
             delete(key);
             return;
         }
 
-        for(Node i= primeiro; i != null; i = i.prox){
+        for(Node i= nodeFirst; i != null; i = i.next){
             if(key.equals(i.key)){
-                i.value = val;
+                i.value = valor;
                 return;
             }
         }
-        primeiro = new Node(key, val, primeiro);
-        n++;
+        nodeFirst = new Node(key, valor, nodeFirst);
+        qtdPares++;
     }
     public void delete(Key key){
-        primeiro = delete(primeiro, key);
+        nodeFirst = delete(nodeFirst, key);
     }
 
-    private Node delete(Node x, Key key){
-        if(x == null){
-            return null;
-        }
-        if (key.equals(x.key)){
-            n--;
-            return x.prox;
-        }
-        x.prox = delete(x.prox, key);
-        return x;
-    }
 
     public Iterable<Key> keys(){
-        Queue<Key> queue = new LinkedList<Key>();
-        for(Node x = primeiro; x != null; x = x.prox){
-            ((LinkedList<Key>) queue).add(x.key);
+        Queue<Key> fila = new LinkedList<Key>();
+        for(Node x = nodeFirst; x != null; x = x.next){
+            ((LinkedList<Key>) fila).add(x.key);
         }
-        return queue;
+        return fila;
     }
+
+    //Método de deleção
+    private Node delete(Node n, Key key){
+        if(n == null){
+            return null;
+        }
+        if (key.equals(n.key)){
+            qtdPares--;
+            return n.next;
+        }
+        n.next = delete(n.next, key);
+        return n;
+    }
+
 }

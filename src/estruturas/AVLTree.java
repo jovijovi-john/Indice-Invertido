@@ -5,298 +5,279 @@ import items.Dicionario;
 public class AVLTree<Key extends Comparable<Key>, Value> implements Dicionario<Key, Value>{
 
     private class Node {
-        Key chave;
-        Value valor;
-        Node esq, dir;
+        Key key;
+        Value value;
+        Node left, right;
+        int alt, tamanho;
 
-        int altura;
-        int tamanho;
-
-        Node(Key chave, Value valor, int tamanho, int altura) {
-            this.chave = chave;
-            this.valor = valor;
-
+        Node(Key key, Value value, int tamanho, int alt) {
+            this.key = key;
+            this.value = value;
             this.tamanho = tamanho;
-            this.altura = altura;
+            this.alt = alt;
         }
 
     }
 
-    private Node raiz;
+    private Node root;
 
-    // Retorna quantos nós tem na árvore
+
+    // Devolve a quantidade de nós da árvore
     public int tamanho() {
-        return tamanho(raiz);
+        return tamanho(root);
     }
 
-    // Retorna quantos nós tem na subárvore
-    private int tamanho(Node no) {
-        if (no == null) {
+
+    // Retorna a quantidade de nós nas subárvores
+    private int tamanho(Node node) {
+        if (node == null) {
             return 0;
         }
 
-        return no.tamanho;
+        return node.tamanho;
     }
 
-    // Retorna a altura da árvore
-    public int altura() {
-        return altura(raiz);
+    // Informa a altura da árvore
+    public int alt() {
+        return alt(root);
     }
 
     // Retorna a altura da subárvore
-    private int altura(Node no) {
-        if (no == null) {
+    private int alt(Node node) {
+        if (node == null) {
             return -1;
         }
 
-        return no.altura;
+        return node.alt;
     }
 
-    // Verifica se a árvore está vazia
+    // Verifica se há elementos na árvore
     public boolean isEmpty() {
-        return tamanho(raiz) == 0;
+        return tamanho(root) == 0;
     }
 
-    // Rotaciona o nó à esquerda
-    private Node rotacaoEsquerda(Node no) {
 
-        if(no == null || no.dir == null)
-            return no;
-
-        // A direita do nó sobe
-        Node newRoot = no.dir;
-
-        // A esquerda do nó que sobe passa para o que desce
-        no.dir = newRoot.esq;
+    // Realiza a rotação à esquerda
+    private Node rotacaoEsquerda(Node node) {
+        if(node == null || node.right == null) {
+            return node;
+        }
+        // O nó a direita sobe
+        Node novaRaiz = node.right;
+        // O nó que desce recebe o nó à esquerda do nó que sobe
+        node.right = novaRaiz.left;
         // O nó desce
-        newRoot.esq = no;
-
-        no.altura = 1 + Math.max(altura(no.esq), altura(no.dir));
-        newRoot.altura = 1 + Math.max(altura(newRoot.esq), altura(newRoot.dir));
-
-        return newRoot;
+        novaRaiz.left = node;
+        node.alt = 1 + Math.max(alt(node.left), alt(node.right));
+        novaRaiz.alt = 1 + Math.max(alt(novaRaiz.left), alt(novaRaiz.right));
+        return novaRaiz;
     }
 
-    // Rotaciona o nó à direita
-    private Node rotacaoDireita(Node no) {
+    // Realiza a rotação à direita
+    private Node rotacaoDireita(Node node) {
 
-        if(no == null || no.esq == null)
-            return no;
+        if(node == null || node.left == null) {
+            return node;
+        }
+        //  O nó a direita sobe
+        Node novaRaiz = node.left;
 
-        // A esquerda do nó sobe
-        Node newRoot = no.esq;
+        // O nó que desce recebe o nó à direita do nó que sobe
+        node.left = novaRaiz.right;
 
-        // A direita do nó que sobe passa para o que desce
-        no.esq = newRoot.dir;
         // O nó desce
-        newRoot.dir = no;
-
-        no.altura = 1 + Math.max(altura(no.esq), altura(no.dir));
-        newRoot.altura = 1 + Math.max(altura(newRoot.esq), altura(newRoot.dir));
-
-        return newRoot;
+        novaRaiz.right = node;
+        node.alt = 1 + Math.max(alt(node.left), alt(node.right));
+        novaRaiz.alt = 1 + Math.max(alt(novaRaiz.left), alt(novaRaiz.right));
+        return novaRaiz;
     }
 
-    // Insere um item na árvore
-    public void put(Key chave, Value valor) {
+    // adiciona um item na árvore
+    public void put(Key key, Value value) {
 
-        if (chave == null) {
+        if (key == null) {
             return;
         }
 
-        if (valor == null) {
-            delete(chave);
+        if (value == null) {
+            delete(key);
             return;
         }
 
-        raiz = put(raiz, chave, valor);
+        root = put(root, key, value);
     }
 
-    // Insere um item na árvore a partir de um nó
-    private Node put(Node no, Key chave, Value valor) {
+    // Adiciona item na arvore por meio de um nó
+    private Node put(Node node, Key key, Value value) {
 
-        // Nó encontrou sua posição
-        if (no == null) {
-            return new Node(chave, valor, 1, 0);
+        // Encontra posição do nó
+        if (node == null) {
+            return new Node(key, value, 1, 0);
         }
 
-        int compare = chave.compareTo(no.chave);
+        int comparar = key.compareTo(node.key);
 
-        // Busca binária da posição do nó
-        if (compare < 0) {
-            no.esq = put(no.esq, chave, valor);
-        } else if (compare > 0) {
-            no.dir = put(no.dir, chave, valor);
+        // Realiza Busca binária da posição do referido nó ( mais eficiente)
+        if (comparar < 0) {
+            node.left = put(node.left, key, value);
+        } else if (comparar > 0) {
+            node.right = put(node.right, key, value);
         } else {
-            // Nó pré-existente atualiza o valor
-            no.valor = valor;
+            node.value = value;
         }
+        node.alt = 1 + Math.max(alt(node.left), alt(node.right));
+        node.tamanho = tamanho(node.left) + 1 + tamanho(node.right);
 
-        no.altura = 1 + Math.max(altura(no.esq), altura(no.dir));
-        no.tamanho = tamanho(no.esq) + 1 + tamanho(no.dir);
-
-        // O balanceamento da árvore precisa ser verificado
-        return balance(no);
+        // Verificando balanceamento da árvore novamente
+        return balanceamento(node);
     }
 
     // Balanceia a árvore
-    private Node balance(Node no) {
+    private Node balanceamento(Node node) {
 
-        // Se direita - esquerda == 2
-        if (fatorBalanceamento(no) > 1) {
-            // Se o desbalanceamento vem da direita do filho 
-            if (fatorBalanceamento(no.dir) < 0) {
-                no.dir = rotacaoDireita(no.dir);
+        // FB = 2
+        if (fatorBalanceamento(node) > 1) {
+            if (fatorBalanceamento(node.right) < 0) {
+                node.right = rotacaoDireita(node.right);
             }
-            no = rotacaoEsquerda(no);
+            node = rotacaoEsquerda(node);
         }
 
-        // Se direita - esquerda == -2
-        if (fatorBalanceamento(no) < -1) {
-            // Se o desbalanceamento vem da esquerda do filho
-            if (fatorBalanceamento(no.esq) > 0) {
-                no.esq = rotacaoEsquerda(no.esq);
+        // FB = -2
+        if (fatorBalanceamento(node) < -1) {
+            if (fatorBalanceamento(node.left) > 0) {
+                node.left = rotacaoEsquerda(node.left);
             }
-            no = rotacaoDireita(no);
+            node = rotacaoDireita(node);
         }
 
-        return no;
+        return node;
     }
 
-    // Retorna o fator de balanceamento do nó
-    // Fator de balanceamento == direita.altura - esquerda.altura
-    private int fatorBalanceamento(Node no) {
-        if(no == null)
+    // Informa o fator de balanceamento ( FB) do nó
+    private int fatorBalanceamento(Node node) {
+        if(node == null){
             return 0;
-        return altura(no.dir) - altura(no.esq);
+        }
+        return alt(node.right) - alt(node.left);
     }
 
-    // Busca um elemento na árvore
-    public Value get(Key chave) {
-        if (chave == null) {
+    // Realiza a busca de um ítem na árvore
+    public Value get(Key key) {
+        if (key == null) {
             return null;
         }
 
-        return get(raiz, chave);
+        return get(root, key);
     }
 
-    // Busca um elemento na árvore a partir de um nó
-    private Value get(Node no, Key chave) {
-        // Se não encontrou retorna nulo
-        if (no == null) {
+    // Busca um item na árvore
+    private Value get(Node node, Key key) {
+        if (node == null) {
             return null;
         }
 
-        // Busca binária na árvore
-        int compare = chave.compareTo(no.chave);
-        if (compare < 0) {
-            return get(no.esq, chave);
-        } else if (compare > 0) {
-            return get(no.dir, chave);
+        // Realiza uma busca binária
+        int comparar = key.compareTo(node.key);
+        if (comparar < 0) {
+            return get(node.left, key);
+        } else if (comparar > 0) {
+            return get(node.right, key);
         } else {
-            return no.valor;
+            return node.value;
         }
     }
 
-    // Verifica a existência de um nó na árvore, usando get
-    public boolean contains(Key chave) {
-        if (chave == null) {
-            throw new IllegalArgumentException("Argument to contains() cannot be null");
+    // Informa se um nó está presente ou não na árvore
+    public boolean contains(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Error");
         }
-        return get(chave) != null;
+        return get(key) != null;
     }
 
-    // Deleta um elemento da árvore
-    public void delete(Key chave) {
+    // Apaga um elemento
+    public void delete(Key key) {
 
-        if (chave == null) {
+        if (key == null) {
             return;
         }
-
-        raiz = delete(raiz, chave);
+        root = delete(root, key);
 
     }
 
-    // Deleta um elemento da árvore a partir de um nó
-    private Node delete(Node no, Key chave) {
-
-        // Se não encontrou a árvore não altera
-        if (no == null) {
+    // Apaga um elemento da árvore
+    private Node delete(Node node, Key key) {
+        if (node == null) {
             return null;
         }
 
-        int compare = chave.compareTo(no.chave);
-
-        // Busca binária pelo nó
-        if (compare < 0) {
-            no.esq = delete(no.esq, chave);
-        } else if (compare > 0) {
-            no.dir = delete(no.dir, chave);
+        int comparar = key.compareTo(node.key);
+        if (comparar < 0) {
+            node.left = delete(node.left, key);
+        } else if (comparar > 0) {
+            node.right = delete(node.right, key);
         } else {
-            // Se nó tiver dois filhos substitui pelo menor da direita
-            if(no.esq != null && no.dir != null) {
-                Node temp = min(no.dir);
-                no.chave = temp.chave;
-                no.valor = temp.valor;
-                no.dir = delete(no.dir, temp.chave);
+            // Verifica quantidade de filhos do nó
+            if(node.left != null && node.right != null) {
+                Node temporario = min(node.right);
+                node.key = temporario.key;
+                node.value = temporario.value;
+                node.right= delete(node.right, temporario.key);
             }
-            // Se nó tiver apenas um filho ou nenhum, substitui pelo filho ou null
-            else if(no.esq != null)
-                return no.esq;
+
+            else if(node.left != null)
+                return node.left;
             else
-                return no.dir;
+                return node.right;
         }
 
-        no.altura = 1 + Math.max(altura(no.esq), altura(no.dir));
-        no.tamanho = tamanho(no.esq) + 1 + tamanho(no.dir);
+        node.alt = 1 + Math.max(alt(node.left), alt(node.right));
+        node.tamanho = tamanho(node.left) + 1 + tamanho(node.right);
 
-        // É necessário verificar o balanceamento
-        return balance(no);
+        // Verificando o balanceamento da árvore
+        return balanceamento(node);
     }
 
-    // Retorna o menor elemento de uma subárvore
-    // O menor elemento é aquele que não possui esquerda
-    private Node min(Node no) {
-        if(no == null) return null;
-        if(no.esq != null) return min(no.esq);
-        return no;
+    // Devolve o menor elemento de uma subárvore
+    private Node min(Node node) {
+        if(node == null) return null;
+        if(node.left != null) return min(node.left);
+        return node;
     }
 
-    // Verifica se a árvore está balanceada
+    // Balanceamento da árvore
     @SuppressWarnings("unused")
-    private boolean isAVL() {
-        return isAVL(raiz);
+    private boolean ehAVL() {
+        return ehAVL(root);
     }
 
     // Verifica se a subárvore está balanceada
-    private boolean isAVL(Node no) {
-        if (no == null) {
+    private boolean ehAVL(Node node) {
+        if (node == null) {
             return true;
         }
 
-        int fatorBalanceamento = fatorBalanceamento(no);
-        // Se fator de balanceamento for menor que -1 ou maior que 1, está desbalanceada
+        int fatorBalanceamento = fatorBalanceamento(node);
         if (fatorBalanceamento < -1 || fatorBalanceamento > 1) {
             return false;
         }
 
-        // Verificação precisa ser feita em cada nó
-        return isAVL(no.esq) && isAVL(no.dir);
+        // Verificando cada nó
+        return ehAVL(node.left) && ehAVL(node.right);
     }
 
-    // Caminha pela árvore
+    // Percorre toda a árvore
     public void view() {
-        view(raiz);
+        view(root);
     }
 
-    // Caminha pela subárvore em pré-ordem, imprimindo o elemento do nó
-    private void view(Node no) {
-        if(no == null) return;
-        System.out.print(no.chave + " ");
-        System.out.println(no.valor.toString());
-
-        view(no.esq);
-        view(no.dir);
+    private void view(Node node) {
+        if(node == null) return;
+        System.out.print(node.key + " ");
+        System.out.println(node.value.toString());
+        view(node.left);
+        view(node.right);
     }
 
 }
