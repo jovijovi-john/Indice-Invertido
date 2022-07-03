@@ -122,6 +122,9 @@ public class HashEncadeado<Key, Value> implements Dicionario<Key, Value> {
         }
     }
 
+    public void view() {
+
+    }
 
 }
 

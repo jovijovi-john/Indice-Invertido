@@ -1,15 +1,16 @@
 package indice;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class IndiceInvertidoItem {
     private String termo;
-    private ArrayList<Par> pares;
+    private HashMap<Integer, Par> pares;
 
     public IndiceInvertidoItem(String termo, Par par) {
         this.termo = termo;
-        this.pares = new ArrayList<>();
-        pares.add(par);
+        this.pares = new HashMap<Integer, Par>();
+        pares.put(par.getId(), par);
     }
 
     public String getTermo() {
@@ -20,12 +21,9 @@ public class IndiceInvertidoItem {
         this.termo = termo;
     }
 
-    public ArrayList<Par> getPares() {
+    public HashMap<Integer, Par> getPares() {
         return pares;
     }
 
-    public void setPares(ArrayList<Par> pares) {
-        this.pares = pares;
-    }
 
 }

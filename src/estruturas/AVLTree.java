@@ -1,8 +1,17 @@
 package estruturas;
+import indice.Par;
 import items.Dicionario;
+
+import java.util.HashMap;
 
 
 public class AVLTree<Key extends Comparable<Key>, Value> implements Dicionario<Key, Value>{
+
+    int ocorrenciasNaLinha;
+
+    public AVLTree() {
+        this.ocorrenciasNaLinha = 0;
+    }
 
     private class Node {
         Key key;
@@ -21,12 +30,10 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements Dicionario<K
 
     private Node root;
 
-
     // Devolve a quantidade de nós da árvore
     public int tamanho() {
         return tamanho(root);
     }
-
 
     // Retorna a quantidade de nós nas subárvores
     private int tamanho(Node node) {
@@ -268,16 +275,26 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements Dicionario<K
     }
 
     // Percorre toda a árvore
-    public void view() {
-        view(root);
+    public void view(Integer indice) {
+        this.ocorrenciasNaLinha = 0;
+        view(root, indice);
     }
 
-    private void view(Node node) {
+    private void view(Node node, Integer indice) {
         if(node == null) return;
-        System.out.print(node.key + " ");
-        System.out.println(node.value.toString());
-        view(node.left);
-        view(node.right);
+
+        if (node.value instanceof HashMap<?, ?>){
+            if(((HashMap<?, ?>) node.value).containsKey(indice)){
+                this.ocorrenciasNaLinha++;
+            }
+        }
+
+        view(node.left, indice);
+        view(node.right, indice);
+    }
+
+    public int getOcorrenciasNaLinha() {
+        return ocorrenciasNaLinha;
     }
 
 }
